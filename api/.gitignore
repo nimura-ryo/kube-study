@@ -1,8 +1,6 @@
 .DS_Store
 node_modules
 /dist
-.git
-.dockerignore
 
 # local env files
 .env.local
@@ -14,4 +12,10 @@ yarn-debug.log*
 yarn-error.log*
 
 # Editor directories and files
+.idea
 .vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
