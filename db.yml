@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+  labels:
+    app: db
+spec:
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+      - name: db
+        image: postgres:alpine
+        ports:
+        - containerPort: 5432
+        # 環境変数
+        env:
+        - name: POSTGRES_PASSWORD
+          value: test
+        - name: POSTGRES_USER
+          value: test
+        # コンテナ内のデータ保管ディレクトリを指定
+        volumeMounts:
+        - name: db-data
+          mountPath: /var/lib/postgresql/data
+          subPath: database
+      # db-dataの位置に、db-pvcをマウントする
+      volumes:
+      - name: db-data
+        persistentVolumeClaim:
+          claimName: db-pvc
+---
+# 必要なディスク容量を指定すると、何処かからdb-pvcにストレージが割り当てられる
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-service
+spec:
+  type: ClusterIP
+  selector:
+    app: db
+  ports:
+  - port: 5432
